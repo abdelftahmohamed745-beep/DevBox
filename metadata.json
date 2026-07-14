@@ -1,0 +1,6 @@
+{
+  "name": "DevBox",
+  "description": "DevBox is a modern, fast, and secure developer utility platform providing 50+ completely free, client-side tools for developers, designers, students, and everyday users.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
