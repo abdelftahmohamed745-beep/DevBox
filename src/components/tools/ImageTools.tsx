@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, Download, RefreshCw, RefreshCw as Loop, Check, Sliders, Image as ImageIcon } from 'lucide-react';
+import { ImageEditor } from './ImageEditor';
 
 const FormatSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes';
@@ -610,6 +611,7 @@ const CropPreviewer = () => {
 };
 
 export const imageToolsComponents: Record<string, () => React.JSX.Element> = {
+  'image-editor': ImageEditor,
   'img-compressor': ImageCompressor,
   'img-resizer': ImageResizer,
   'img-converter': ImageConverter,

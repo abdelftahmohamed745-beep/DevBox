@@ -3,7 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>DevBox - Modern Offline-First Developer Utility Platform</title>
+    <!-- SEO Metadata -->
+    <meta name="description" content="DevBox is a fast, secure, and modern offline-first developer utility platform with 50+ client-side tools for developers, designers, and students." />
+    <meta name="keywords" content="devbox, developer tools, coder utilities, base64 encoder, json formatter, css optimizer, regex parser, local development, offline tools" />
+    <meta name="author" content="DevBox Team" />
+    <meta name="application-name" content="DevBox" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="DevBox - Modern Offline-First Developer Utility Platform" />
+    <meta property="og:description" content="Access 50+ developer utility tools locally and securely inside your browser." />
+    <meta property="og:site_name" content="DevBox" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DevBox - Modern Offline-First Developer Utility Platform" />
+    <meta name="twitter:description" content="Access 50+ developer utility tools locally and securely inside your browser." />
+    
+    <!-- PWA / Mobile Web App Capable -->
+    <meta name="apple-mobile-web-app-title" content="DevBox" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><text y=%22.9em%22 font-size=%2260%22 x=%2220%22 fill=%22%23ffffff%22 font-family=%22system-ui%22 font-weight=%22bold%22>&lt;&gt;</text></svg>" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('[PWA] Service Worker registered successfully', reg.scope))
+            .catch((err) => console.error('[PWA] Service Worker registration failed', err));
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

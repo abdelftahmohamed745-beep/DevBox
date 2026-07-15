@@ -1,21 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Search, Star, Moon, Sun, ArrowRight, CheckCircle2, ShieldCheck, Cpu, Clock, AlertTriangle, Menu, X, Mail, Send, ExternalLink, Globe
+  Search, Star, Moon, Sun, ArrowRight, CheckCircle2, ShieldCheck, Cpu, Clock, AlertTriangle, Menu, X, Mail, Send, ExternalLink, Globe, User
 } from 'lucide-react';
 import { categories, tools, faqs, appStats } from './data/toolsData';
 import { allToolComponents } from './components/tools';
+import { ToolErrorBoundary } from './components/tools/ToolErrorBoundary';
+import { ToolLoader } from './components/tools/ToolLoader';
 import { LucideIcon } from './components/LucideIcon';
 import { getInitialLanguage, updateUrlForLanguage, t, translateCategory, translateTool, translateFAQ, Language } from './data/translations';
+import { AccountSystem } from './components/AccountSystem';
+import { AdminPanel } from './components/AdminPanel';
+import { BlogSystem } from './components/BlogSystem';
+import { WorkspaceSystem } from './components/WorkspaceSystem';
+
+// Independent architecture services
+import { storageService } from './services/storageService';
+import { favoritesService } from './services/favoritesService';
+import { historyService } from './services/historyService';
+import { searchService } from './services/searchService';
+import { exportService } from './services/exportService';
+import { fileService } from './services/fileService';
+import { pwaService } from './services/pwaService';
 
 export default function App() {
   // Navigation & Theme State
-  const [currentPage, setCurrentPage] = useState<'home' | 'tools' | 'categories' | 'favorites' | 'about' | 'contact' | 'privacy' | 'terms' | 'tool' | '404'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'tools' | 'categories' | 'favorites' | 'about' | 'contact' | 'privacy' | 'terms' | 'tool' | 'account' | 'admin' | 'blog' | 'workspace' | '404'>('home');
+  const [activeUser, setActiveUser] = useState<any>(() => {
+    return storageService.getItem<any>('devbox_active_user', null);
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('devbox_theme') === 'dark');
+  const [darkMode, setDarkMode] = useState(() => storageService.getItem<string>('devbox_theme', 'light') === 'dark');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>(getInitialLanguage);
+
+  // Command Palette State variables
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [commandPaletteQuery, setCommandPaletteQuery] = useState('');
+  const [cmdSelectedIndex, setCmdSelectedIndex] = useState(0);
+  const [commandPaletteFilter, setCommandPaletteFilter] = useState<'all' | 'tools' | 'categories' | 'favorites' | 'projects' | 'docs'>('all');
+  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
+    return historyService.getSearchHistory();
+  });
+
+  const saveSearchHistory = (q: string) => {
+    if (!q.trim()) return;
+    const updated = historyService.addSearchQuery(q);
+    setSearchHistory(updated);
+  };
 
   // Synchronize Language to LocalStorage, document, and URLs
   useEffect(() => {
@@ -24,6 +57,20 @@ export default function App() {
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
   }, [language]);
+
+  // Listen for Ctrl+K / Cmd+K global shortcut to activate Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+        setCommandPaletteQuery('');
+        setCmdSelectedIndex(0);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Handle browser back/forward history buttons to sync language state
   useEffect(() => {
@@ -44,10 +91,10 @@ export default function App() {
 
   // Favorites & Recents State
   const [favorites, setFavorites] = useState<string[]>(() => {
-    return JSON.parse(localStorage.getItem('devbox_favorites') || '[]');
+    return favoritesService.getFavorites();
   });
   const [recents, setRecents] = useState<string[]>(() => {
-    return JSON.parse(localStorage.getItem('devbox_recents') || '[]');
+    return historyService.getRecents();
   });
 
   // Contact Form State
@@ -110,6 +157,18 @@ export default function App() {
     } else if (currentPage === 'tool' && activeTool) {
       title = `${activeTool.name} - ${t('Free Browser Tool', language)} | DevBox`;
       metaDescription = `${activeTool.description} ${t('Run 100% securely and offline within your browser with instantaneous results.', language)}`;
+    } else if (currentPage === 'account') {
+      title = `${t('User Dashboard & Account Space', language)} - DevBox`;
+      metaDescription = t('Manage your developer profile, synchronize your favorite tools, configure security settings, and read platform notifications.', language);
+    } else if (currentPage === 'admin') {
+      title = `${t('Master Root Admin Control Center', language)} - DevBox`;
+      metaDescription = t('CRUD management of system catalogs, custom tools, user dashboard logs, and platform SEO metadata configurations.', language);
+    } else if (currentPage === 'blog') {
+      title = `${t('DevBox Productivity and Security Blog', language)} - DevBox`;
+      metaDescription = t('Read deep dives into modern web standards, cryptography sandboxes, and responsive design systems processed 100% locally.', language);
+    } else if (currentPage === 'workspace') {
+      title = `${t('Developer Workspace Project Sandbox', language)} - DevBox`;
+      metaDescription = t('Manage multiple developer project scopes, bookmark utilities, and edit local logs or task checklists offline.', language);
     }
 
     document.title = title;
@@ -159,11 +218,8 @@ export default function App() {
 
   // Handle Favorites toggle
   const toggleFavorite = (toolId: string) => {
-    setFavorites((prev) => {
-      const updated = prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId];
-      localStorage.setItem('devbox_favorites', JSON.stringify(updated));
-      return updated;
-    });
+    const updated = favoritesService.toggleFavorite(toolId);
+    setFavorites(updated);
   };
 
   // Launch a specific tool
@@ -173,12 +229,229 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Track as recently used
-    setRecents((prev) => {
-      const filtered = prev.filter(id => id !== toolId);
-      const updated = [toolId, ...filtered].slice(0, 5);
-      localStorage.setItem('devbox_recents', JSON.stringify(updated));
-      return updated;
+    const updated = historyService.addRecent(toolId);
+    setRecents(updated);
+  };
+
+  // Get matching items for the Command Palette (search portal)
+  const getCommandPaletteItems = () => {
+    // Synonyms dictionary for smart developer search
+    const SYNONYMS: Record<string, string[]> = {
+      'beautify': ['json-formatter', 'css-formatter', 'javascript-formatter', 'sql-formatter', 'html-formatter-beautifier', 'yaml-formatter', 'xml-formatter'],
+      'minify': ['json-minifier', 'html-minifier', 'sql-minify', 'json-minify-advanced'],
+      'compress': ['pdf-compress', 'img-contrast-adjust', 'video-compressor', 'audio-compressor'],
+      'base64': ['img-base64-encode', 'base64-image'],
+      'encrypt': ['aes-encryption', 'bcrypt-generator', 'sha256-hasher'],
+      'hash': ['sha256-hasher', 'sha512-hasher', 'md5-hasher', 'sha1-hasher'],
+      'trim': ['video-trimmer', 'video-cutter', 'audio-cutter'],
+      'quality': ['media-quality-enhancer'],
+      'upscale': ['media-quality-enhancer'],
+      'vtt': ['srt-vtt-converter', 'subtitle-editor'],
+      'jwt': ['jwt-debugger', 'jwt-generator-tool'],
+      'regex': ['regex-builder', 'regex-cheatsheet'],
+      'convert': ['yaml-to-json', 'json-to-yaml', 'toml-to-json', 'json-to-csv', 'unit-converter-pro', 'epoch-converter', 'binary-converter', 'morse-converter'],
+      'format': ['json-formatter', 'css-formatter', 'javascript-formatter', 'sql-formatter', 'yaml-formatter', 'xml-formatter'],
+      'sql': ['sql-formatter', 'sql-minify', 'sql-mock-gen', 'database'],
+      'diff': ['text-diff', 'diff-checker-pro'],
+      'pwa': ['about'],
+      'offline': ['about'],
+    };
+
+    const items: Array<{
+      type: 'tool' | 'category' | 'page' | 'project' | 'doc';
+      id: string;
+      title: string;
+      subtitle: string;
+      icon: string;
+      action: () => void;
+    }> = [];
+
+    const query = commandPaletteQuery.toLowerCase().trim();
+
+    // Synonym expansion
+    const synonymMatches: string[] = [];
+    Object.entries(SYNONYMS).forEach(([keyword, toolIds]) => {
+      if (query && (query.includes(keyword) || keyword.includes(query))) {
+        synonymMatches.push(...toolIds);
+      }
     });
+
+    const filter = commandPaletteFilter;
+
+    // 1. Core Tools list (translated names and tags matching)
+    if (filter === 'all' || filter === 'tools') {
+      let matchingTools = translatedTools;
+      if (query) {
+        matchingTools = matchingTools.filter(t => 
+          t.name.toLowerCase().includes(query) || 
+          t.description.toLowerCase().includes(query) || 
+          t.tags.some(tag => tag.toLowerCase().includes(query)) ||
+          synonymMatches.includes(t.id)
+        );
+      } else {
+        // Default empty query: popular & featured tools
+        matchingTools = matchingTools.filter(t => t.popular || t.featured).slice(0, 5);
+      }
+
+      matchingTools.forEach(t => {
+        items.push({
+          type: 'tool',
+          id: t.id,
+          title: t.name,
+          subtitle: t.description,
+          icon: t.icon,
+          action: () => {
+            launchTool(t.id);
+            setCommandPaletteOpen(false);
+          }
+        });
+      });
+    }
+
+    // 2. Categories
+    if (filter === 'all' || filter === 'categories') {
+      let matchingCats = translatedCategories;
+      if (query) {
+        matchingCats = matchingCats.filter(c => 
+          c.name.toLowerCase().includes(query) || 
+          c.description.toLowerCase().includes(query)
+        );
+      } else if (filter === 'categories') {
+        matchingCats = translatedCategories;
+      } else {
+        matchingCats = []; // Don't show by default to save space
+      }
+
+      matchingCats.forEach(c => {
+        items.push({
+          type: 'category',
+          id: c.id,
+          title: c.name,
+          subtitle: c.description,
+          icon: c.icon,
+          action: () => {
+            setSelectedCategory(c.id);
+            setCurrentPage('tools');
+            setCommandPaletteOpen(false);
+          }
+        });
+      });
+    }
+
+    // 3. System Pages
+    if (filter === 'all') {
+      const systemPages = [
+        { name: t('Home Workspace', language), page: 'home', icon: 'Cpu', desc: t('Main control workspace dashboard.', language) },
+        { name: t('All Tools Portfolio', language), page: 'tools', icon: 'Search', desc: t('List and filter all 50+ offline helper tools.', language) },
+        { name: t('Browse Categories Portfolio', language), page: 'categories', icon: 'Sliders', desc: t('Folders organized by developer focus areas.', language) },
+        { name: t('My Starred Favorites', language), page: 'favorites', icon: 'Star', desc: t('Your private starred utilities suite.', language) },
+        { name: t('DevBox Blog', language), page: 'blog', icon: 'FileText', desc: t('Productivity & local security deep dives.', language) },
+        { name: t('Submit Suggestions', language), page: 'contact', icon: 'Mail', desc: t('Submit requirements or report tool bugs.', language) },
+        { name: t('About DevBox', language), page: 'about', icon: 'ShieldCheck', desc: t('Philosophy behind strict client-side sandboxes.', language) },
+        { name: t('User Profile & Notifications', language), page: 'account', icon: 'User', desc: t('Profile configuration and developer hub.', language) },
+      ];
+
+      const matchedPages = query
+        ? systemPages.filter(p => p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query))
+        : systemPages.slice(0, 4);
+
+      matchedPages.forEach(p => {
+        items.push({
+          type: 'page',
+          id: p.page,
+          title: p.name,
+          subtitle: p.desc,
+          icon: p.icon,
+          action: () => {
+            setCurrentPage(p.page as any);
+            setCommandPaletteOpen(false);
+          }
+        });
+      });
+    }
+
+    // 4. Projects from Workspace
+    if (filter === 'all' || filter === 'projects') {
+      try {
+        const wsSaved = localStorage.getItem('devbox_workspace_system');
+        if (wsSaved) {
+          const parsed = JSON.parse(wsSaved);
+          const projects = parsed.projects || [];
+          const matchingProjects = query
+            ? projects.filter((p: any) => 
+                p.name.toLowerCase().includes(query) || 
+                (p.description || '').toLowerCase().includes(query)
+              )
+            : projects.slice(0, 3);
+
+          matchingProjects.forEach((p: any) => {
+            items.push({
+              type: 'project',
+              id: p.id,
+              title: `${t('Project', language)}: ${p.name}`,
+              subtitle: p.description || t('Local Workspace Project.', language),
+              icon: 'FolderKanban',
+              action: () => {
+                setCurrentPage('workspace');
+                setCommandPaletteOpen(false);
+              }
+            });
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to parse workspace items for search');
+      }
+    }
+
+    // 5. Favorites
+    if (filter === 'all' || filter === 'favorites') {
+      const matchingFavs = translatedTools.filter(t => favorites.includes(t.id) && (
+        !query || 
+        t.name.toLowerCase().includes(query) || 
+        t.description.toLowerCase().includes(query) ||
+        synonymMatches.includes(t.id)
+      ));
+
+      matchingFavs.forEach(tool => {
+        items.push({
+          type: 'tool',
+          id: tool.id,
+          title: `${tool.name} (${t('Star', language)})`,
+          subtitle: tool.description,
+          icon: tool.icon,
+          action: () => {
+            launchTool(tool.id);
+            setCommandPaletteOpen(false);
+          }
+        });
+      });
+    }
+
+    // 6. Documentation / FAQs
+    if (filter === 'all' || filter === 'docs') {
+      const matchingFAQs = query
+        ? faqs.filter(faq => 
+            faq.question.toLowerCase().includes(query) || 
+            faq.answer.toLowerCase().includes(query)
+          )
+        : (filter === 'docs' ? faqs.slice(0, 5) : []);
+
+      matchingFAQs.forEach((faq, idx) => {
+        items.push({
+          type: 'doc',
+          id: `faq-${idx}`,
+          title: faq.question,
+          subtitle: faq.answer.slice(0, 100) + '...',
+          icon: 'HelpCircle',
+          action: () => {
+            setCurrentPage('about');
+            setCommandPaletteOpen(false);
+          }
+        });
+      });
+    }
+
+    return items;
   };
 
   // Filter tools by search or category
@@ -263,6 +536,12 @@ export default function App() {
                 )}
               </button>
               <button
+                onClick={() => setCurrentPage('workspace')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${currentPage === 'workspace' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-transparent'}`}
+              >
+                {t('Workspace', language)}
+              </button>
+              <button
                 onClick={() => setCurrentPage('about')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${currentPage === 'about' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-transparent'}`}
               >
@@ -273,6 +552,12 @@ export default function App() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${currentPage === 'contact' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-transparent'}`}
               >
                 {t('Contact', language)}
+              </button>
+              <button
+                onClick={() => setCurrentPage('blog')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border ${currentPage === 'blog' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/10' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-transparent'}`}
+              >
+                {t('Blog', language)}
               </button>
             </div>
 
@@ -312,6 +597,25 @@ export default function App() {
               >
                 {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-600" />}
               </button>
+
+              {/* Dynamic Account Space Button */}
+              {activeUser ? (
+                <button
+                  onClick={() => setCurrentPage('account')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer text-xs font-bold ${currentPage === 'account' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/20' : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-250 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-850'}`}
+                >
+                  <img src={activeUser.avatar} alt={activeUser.username} className="w-4.5 h-4.5 rounded-md object-cover border border-blue-500/10" />
+                  <span>{language === 'ar' ? 'حسابي' : 'Dashboard'}</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setCurrentPage('account')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer text-xs font-bold ${currentPage === 'account' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-600/20' : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-250 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-850'}`}
+                >
+                  <User className="w-3.5 h-3.5 text-slate-550" />
+                  <span>{language === 'ar' ? 'دخول' : 'Sign In'}</span>
+                </button>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -367,6 +671,12 @@ export default function App() {
               )}
             </button>
             <button
+              onClick={() => { setCurrentPage('workspace'); setMobileMenuOpen(false); }}
+              className="block w-full text-start px-3 py-2 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
+            >
+              {t('Workspace', language)}
+            </button>
+            <button
               onClick={() => { setCurrentPage('about'); setMobileMenuOpen(false); }}
               className="block w-full text-start px-3 py-2 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
             >
@@ -377,6 +687,18 @@ export default function App() {
               className="block w-full text-start px-3 py-2 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
             >
               {t('Contact', language)}
+            </button>
+            <button
+              onClick={() => { setCurrentPage('blog'); setMobileMenuOpen(false); }}
+              className="block w-full text-start px-3 py-2 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
+            >
+              {t('Blog', language)}
+            </button>
+            <button
+              onClick={() => { setCurrentPage('account'); setMobileMenuOpen(false); }}
+              className="block w-full text-start px-3 py-2 rounded-lg text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900"
+            >
+              {t('Account Space', language)}
             </button>
           </div>
         )}
@@ -483,18 +805,17 @@ export default function App() {
                   </p>
 
                   {/* High Performance Search query input */}
-                  <div className="max-w-md mx-auto mt-6 relative">
+                  <div className="max-w-md mx-auto mt-6 relative cursor-pointer" onClick={() => { setCommandPaletteOpen(true); setCommandPaletteQuery(''); }}>
                     <Search className={`absolute ${language === 'ar' ? 'right-3.5' : 'left-3.5'} top-3.5 w-5 h-5 text-slate-400`} />
                     <input
                       type="text"
-                      placeholder={t('Search across 50+ free tools...', language)}
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setCurrentPage('tools');
-                      }}
-                      className={`w-full py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-950 text-sm shadow-inner transition-all text-slate-900 dark:text-white ${language === 'ar' ? 'pr-11 pl-4 text-right' : 'pl-11 pr-4 text-left'}`}
+                      placeholder={t('Search... (Ctrl+K)', language)}
+                      readOnly
+                      className={`w-full py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm shadow-inner transition-all text-slate-400 dark:text-slate-500 cursor-pointer ${language === 'ar' ? 'pr-11 pl-16 text-right' : 'pl-11 pr-16 text-left'}`}
                     />
+                    <div className={`absolute ${language === 'ar' ? 'left-3.5' : 'right-3.5'} top-2.5 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-500 font-bold border border-slate-250 dark:border-slate-750 shadow-xs`}>
+                      Ctrl + K
+                    </div>
                   </div>
                 </section>
 
@@ -861,7 +1182,11 @@ export default function App() {
                 {/* Main Interactive Tool Render Container */}
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm min-h-[220px]">
                   {ActiveToolComponent ? (
-                    <ActiveToolComponent />
+                    <ToolErrorBoundary language={language}>
+                      <React.Suspense fallback={<ToolLoader language={language} />}>
+                        <ActiveToolComponent language={language} />
+                      </React.Suspense>
+                    </ToolErrorBoundary>
                   ) : (
                     <div className="p-8 text-center">
                       <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
@@ -1048,6 +1373,42 @@ export default function App() {
               </div>
             )}
 
+            {/* 10. ACCOUNT SYSTEM & USER DASHBOARD */}
+            {currentPage === 'account' && (
+              <div className="space-y-6 animate-fade-in">
+                <AccountSystem
+                  language={language}
+                  onLoginStateChange={(user) => setActiveUser(user)}
+                  onLaunchTool={(toolId) => launchTool(toolId)}
+                  onRequestPage={(page) => setCurrentPage(page)}
+                />
+              </div>
+            )}
+
+            {/* 11. ADMIN DASHBOARD CONTROL PANEL */}
+            {currentPage === 'admin' && (
+              <div className="space-y-6 animate-fade-in">
+                <AdminPanel language={language} />
+              </div>
+            )}
+
+            {/* 12. BLOG READ / COMMENT SYSTEM */}
+            {currentPage === 'blog' && (
+              <div className="space-y-6 animate-fade-in">
+                <BlogSystem language={language} />
+              </div>
+            )}
+
+            {/* 13. ADVANCED WORKSPACE SYSTEM */}
+            {currentPage === 'workspace' && (
+              <div className="space-y-6 animate-fade-in">
+                <WorkspaceSystem
+                  language={language}
+                  onLaunchTool={(toolId) => launchTool(toolId)}
+                />
+              </div>
+            )}
+
           </main>
 
         </div>
@@ -1078,6 +1439,7 @@ export default function App() {
                 <li><button onClick={() => { setCurrentPage('tools'); setSelectedCategory(null); }} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Portfolio', language)}</button></li>
                 <li><button onClick={() => setCurrentPage('categories')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Categories', language)}</button></li>
                 <li><button onClick={() => setCurrentPage('favorites')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Starred', language)}</button></li>
+                <li><button onClick={() => setCurrentPage('blog')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Blog', language)}</button></li>
               </ul>
             </div>
 
@@ -1086,6 +1448,7 @@ export default function App() {
               <ul className="space-y-1.5 text-xs font-semibold text-slate-400 dark:text-slate-400">
                 <li><button onClick={() => setCurrentPage('about')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('About Vision', language)}</button></li>
                 <li><button onClick={() => setCurrentPage('contact')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Suggestions', language)}</button></li>
+                <li><button onClick={() => setCurrentPage('admin')} className="hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer text-left">{t('Admin Console', language)}</button></li>
               </ul>
             </div>
 
@@ -1110,6 +1473,200 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Dynamic Command Palette overlay modal */}
+      {commandPaletteOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-[10%] px-4 animate-fade-in"
+          onClick={() => setCommandPaletteOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-zoom-in text-start flex flex-col max-h-[500px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Search Input Bar inside Modal */}
+            <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-slate-800 relative">
+              <Search className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
+              <input
+                autoFocus
+                type="text"
+                placeholder={t('Type to search tools and pages...', language)}
+                value={commandPaletteQuery}
+                onChange={(e) => {
+                  setCommandPaletteQuery(e.target.value);
+                  setCmdSelectedIndex(0);
+                }}
+                onKeyDown={(e) => {
+                  const cmdItems = getCommandPaletteItems();
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setCmdSelectedIndex(prev => (prev + 1) % Math.max(1, cmdItems.length));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setCmdSelectedIndex(prev => (prev - 1 + cmdItems.length) % Math.max(1, cmdItems.length));
+                  } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (cmdItems[cmdSelectedIndex]) {
+                      saveSearchHistory(commandPaletteQuery);
+                      cmdItems[cmdSelectedIndex].action();
+                    }
+                  } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    setCommandPaletteOpen(false);
+                  }
+                }}
+                className="w-full bg-transparent border-none outline-none text-slate-900 dark:text-white text-sm placeholder-slate-400 dark:placeholder-slate-500"
+              />
+              <button 
+                onClick={() => setCommandPaletteOpen(false)}
+                className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[10px] font-mono border border-slate-200/50 dark:border-slate-700/50"
+              >
+                ESC
+              </button>
+            </div>
+
+            {/* Smart Search Filter Tabs */}
+            <div className="flex gap-1.5 px-4 py-2 border-b border-slate-150 dark:border-slate-800/65 overflow-x-auto scrollbar-none shrink-0 bg-slate-50/50 dark:bg-slate-900/50">
+              {[
+                { id: 'all', label: language === 'ar' ? 'الكل' : 'All' },
+                { id: 'tools', label: language === 'ar' ? 'الأدوات' : 'Tools' },
+                { id: 'categories', label: language === 'ar' ? 'الفئات' : 'Categories' },
+                { id: 'projects', label: language === 'ar' ? 'المشاريع' : 'Projects' },
+                { id: 'favorites', label: language === 'ar' ? 'المفضلة' : 'Favorites' },
+                { id: 'docs', label: language === 'ar' ? 'التوثيق' : 'Docs' }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => {
+                    setCommandPaletteFilter(f.id as any);
+                    setCmdSelectedIndex(0);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer shrink-0 border ${commandPaletteFilter === f.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-150 dark:bg-slate-800 text-slate-550 dark:text-slate-400 border-transparent hover:bg-slate-200 dark:hover:bg-slate-750'}`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Popular Searches & Recent Searches (Empty Query Helper) */}
+            {!commandPaletteQuery && (
+              <div className="flex flex-col divide-y divide-slate-100/50 dark:divide-slate-800/30">
+                {/* Popular Searches Tags */}
+                <div className="p-3 bg-slate-50/40 dark:bg-slate-900/20 shrink-0">
+                  <span className="text-[9px] font-mono font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase block mb-1.5">{language === 'ar' ? 'البحث الشائع' : 'Popular Searches'}</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['JSON Formatter', 'Base64 Image', 'Quality Enhancer', 'JWT Debugger', 'SQL Minify', 'Text Diff'].map(pop => (
+                      <button
+                        key={pop}
+                        onClick={() => {
+                          setCommandPaletteQuery(pop);
+                          setCmdSelectedIndex(0);
+                        }}
+                        className="px-2 py-0.5 bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer transition-colors"
+                      >
+                        {pop}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent Searches History */}
+                {searchHistory.length > 0 && (
+                  <div className="p-3 bg-slate-50/40 dark:bg-slate-900/20 shrink-0">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-[9px] font-mono font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">{language === 'ar' ? 'عمليات البحث الأخيرة' : 'Recent Searches'}</span>
+                      <button
+                        onClick={() => {
+                          setSearchHistory([]);
+                          localStorage.removeItem('devbox_search_history');
+                        }}
+                        className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                      >
+                        {language === 'ar' ? 'مسح' : 'Clear'}
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {searchHistory.map(hist => (
+                        <button
+                          key={hist}
+                          onClick={() => {
+                            setCommandPaletteQuery(hist);
+                            setCmdSelectedIndex(0);
+                          }}
+                          className="px-2 py-0.5 bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-md text-[10px] font-medium text-slate-600 dark:text-slate-450 cursor-pointer transition-colors flex items-center gap-1"
+                        >
+                          <Clock className="w-2.5 h-2.5 text-slate-400" />
+                          <span>{hist}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* List Matching Commands & Pages */}
+            <div className="overflow-y-auto p-2 space-y-1 divide-y divide-slate-100/50 dark:divide-slate-800/30 max-h-[350px]">
+              {getCommandPaletteItems().length === 0 ? (
+                <div className="p-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                  <AlertTriangle className="w-6 h-6 text-amber-500 mx-auto mb-2 opacity-80" />
+                  <span>{t('No commands matched', language)}</span>
+                </div>
+              ) : (
+                <div className="space-y-0.5">
+                  {/* Categorized Header */}
+                  <div className="px-3 py-1.5 text-[9px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase flex justify-between">
+                    <span>{commandPaletteQuery ? t('Command Portfolio', language) : t('Recent & Popular', language)}</span>
+                    <span>{getCommandPaletteItems().length} {t('items', language)}</span>
+                  </div>
+
+                  {getCommandPaletteItems().map((item, idx) => {
+                    const isSelected = idx === cmdSelectedIndex;
+                    return (
+                      <button
+                        key={`${item.type}-${item.id}`}
+                        onClick={item.action}
+                        onMouseEnter={() => setCmdSelectedIndex(idx)}
+                        className={`w-full flex items-center gap-3.5 px-3 py-2.5 rounded-xl transition-all text-start group cursor-pointer ${isSelected ? 'bg-blue-600 text-white' : 'hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300'}`}
+                      >
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-slate-200'}`}>
+                          <LucideIcon name={item.icon} className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className={`text-xs font-bold leading-tight ${isSelected ? 'text-white' : 'text-slate-800 dark:text-slate-100'}`}>
+                            {item.title}
+                          </h4>
+                          <p className={`text-[10px] leading-snug line-clamp-1 mt-0.5 ${isSelected ? 'text-blue-100' : 'text-slate-400 dark:text-slate-500'}`}>
+                            {item.subtitle}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-md ${isSelected ? 'bg-white/20 text-blue-100' : 'bg-slate-150 dark:bg-slate-800 text-slate-400 dark:text-slate-500'}`}>
+                            {item.type.toUpperCase()}
+                          </span>
+                          {isSelected && <ArrowRight className="w-3.5 h-3.5 text-white shrink-0" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Keyboard helpers Footer bar */}
+            <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 dark:text-slate-500 font-medium flex justify-between items-center shrink-0">
+              <div className="flex gap-2.5 items-center">
+                <span>↑↓ {language === 'ar' ? 'للتنقل' : 'to navigate'}</span>
+                <span>•</span>
+                <span>Enter {language === 'ar' ? 'للاختيار والتشغيل' : 'to select'}</span>
+              </div>
+              <div>
+                <span>{t('Press ESC to exit', language)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

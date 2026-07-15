@@ -643,6 +643,161 @@ export const translations: Record<string, Record<Language, string>> = {
   'PRIVACY VERIFIED': { en: 'PRIVACY VERIFIED', ar: 'الخصوصية موثقة ومؤكدة' },
   '100% SANDBOX SECURE': { en: '100% SANDBOX SECURE', ar: 'أمان بيئة العمل 100٪' },
   'Explore %s dedicated tools': { en: 'Explore %s dedicated tools', ar: 'استكشف %s أداة برمجية مخصصة' },
+  'HTML Minifier': { en: 'HTML Minifier', ar: 'مختصر HTML' },
+  'Strip HTML comments, collapse unnecessary white-space, and compact markup.': {
+    en: 'Strip HTML comments, collapse unnecessary white-space, and compact markup.',
+    ar: 'إزالة تعليقات HTML، ودمج المسافات البيضاء الزائدة، وضغط الكود.'
+  },
+  'YAML to JSON Converter': { en: 'YAML to JSON Converter', ar: 'محول YAML إلى JSON' },
+  'Parse simple flat YAML configurations into clean JSON key-values instantly.': {
+    en: 'Parse simple flat YAML configurations into clean JSON key-values instantly.',
+    ar: 'تحليل تكوينات YAML المسطحة إلى قيم ومفاتيح JSON نظيفة فوراً.'
+  },
+  'JSON to YAML Converter': { en: 'JSON to YAML Converter', ar: 'محول JSON إلى YAML' },
+  'Convert flat structured JSON schemas into readable simple YAML mappings.': {
+    en: 'Convert flat structured JSON schemas into readable simple YAML mappings.',
+    ar: 'تحويل مخططات JSON المهيكلة المسطحة إلى تعيينات YAML بسيطة وسهلة القراءة.'
+  },
+  'TOML to JSON Converter': { en: 'TOML to JSON Converter', ar: 'محول TOML إلى JSON' },
+  'Translate standard config files with [headers] and tables into JSON strings.': {
+    en: 'Translate standard config files with [headers] and tables into JSON strings.',
+    ar: 'ترجمة ملفات التكوين القياسية التي تحتوي على [ترويسات] وجداول إلى نصوص JSON.'
+  },
+  'TOML Generator': { en: 'TOML Generator', ar: 'مولد TOML' },
+  'Interactively build configuration profiles and output correct TOML tags.': {
+    en: 'Interactively build configuration profiles and output correct TOML tags.',
+    ar: 'بناء ملفات تعريف التكوين بشكل تفاعلي وإخراج وسوم TOML صحيحة.'
+  },
+  'Base32 Encoder/Decoder': { en: 'Base32 Encoder/Decoder', ar: 'مشفر ومفكك Base32' },
+  'Encode raw text payloads into base32 sequence alphabets or decode hashes.': {
+    en: 'Encode raw text payloads into base32 sequence alphabets or decode hashes.',
+    ar: 'تشفير حمولات النصوص العادية إلى تسلسلات أبجدية Base32 أو تفكيكها.'
+  },
+  'ROT13 Caesar Cipher': { en: 'ROT13 Caesar Cipher', ar: 'تشفير القيصر ROT13' },
+  'Rotate alphabetic values by 13 positions for simple cryptographic obfuscations.': {
+    en: 'Rotate alphabetic values by 13 positions for simple cryptographic obfuscations.',
+    ar: 'تدوير القيم الأبجدية بمقدار 13 خطوة لتعتيم النصوص البسيطة.'
+  },
+  'Hex Encoder/Decoder': { en: 'Hex Encoder/Decoder', ar: 'مشفر ومفكك ترميز سداسي عشر' },
+  'Convert plain text strings into space-separated hex streams or decode back.': {
+    en: 'Convert plain text strings into space-separated hex streams or decode back.',
+    ar: 'تحويل النصوص العادية إلى سلاسل سداسية عشرية مفصولة بمسافات أو العكس.'
+  },
+  'Unicode Character Inspector': { en: 'Unicode Character Inspector', ar: 'مفتش رموز اليونيكود' },
+  'Enter any letter, emoji, or symbol to inspect decimal codes, hex mappings, and bits.': {
+    en: 'Enter any letter, emoji, or symbol to inspect decimal codes, hex mappings, and bits.',
+    ar: 'أدخل أي حرف أو رمز تعبيري أو علامة لفحص الرموز العشرية، وتعيينات السداسي عشر، والبتات.'
+  },
+  'User Agent String Parser': { en: 'User Agent String Parser', ar: 'محلل نص وكيل المستخدم' },
+  'Deconstruct details about browsers, engines, OS kernels, and mobile markers from UA strings.': {
+    en: 'Deconstruct details about browsers, engines, OS kernels, and mobile markers from UA strings.',
+    ar: 'تفكيك تفاصيل المتصفحات، المحركات، أنظمة التشغيل، وعلامات الهواتف من نصوص وكيل المستخدم.'
+  },
+  'URL & Query Inspector': { en: 'URL & Query Inspector', ar: 'مفتش الروابط والاستعلامات' },
+  'Breakdown query-strings, path parts, protocols, hashes, and variables from absolute URLs.': {
+    en: 'Breakdown query-strings, path parts, protocols, hashes, and variables from absolute URLs.',
+    ar: 'تحليل سلاسل الاستعلام وأجزاء المسار والبروتوكولات وعلامات الهاش والمتغيرات من الروابط المطلقة.'
+  },
+  'HTML & XSS Sanitizer': { en: 'HTML & XSS Sanitizer', ar: 'مظهر HTML وحامي XSS' },
+  'Strip malicious scripts, event hooks, and nested tags from HTML codes safely.': {
+    en: 'Strip malicious scripts, event hooks, and nested tags from HTML codes safely.',
+    ar: 'تنظيف كود HTML من النصوص البرمجية الخبيثة وخطافات الأحداث والوسوم المتداخلة بأمان.'
+  },
+  'Display & Screen Inspector': { en: 'Display & Screen Inspector', ar: 'مفتش العرض والشاشة' },
+  'Query client viewport heights, widths, pixel ratios, hardware core indices, and properties.': {
+    en: 'Query client viewport heights, widths, pixel ratios, hardware core indices, and properties.',
+    ar: 'الاستعلام عن أبعاد نافذة العرض للعميل، ونسب البكسل، ومؤشرات نوى المعالج، والخصائص الأخرى.'
+  },
+  'HTML to Markdown Converter': { en: 'HTML to Markdown Converter', ar: 'محول HTML إلى Markdown' },
+  'Instantly convert structural headings, tags, lists, and links into standard Markdown styles.': {
+    en: 'Instantly convert structural headings, tags, lists, and links into standard Markdown styles.',
+    ar: 'تحويل ترويسات ووسوم وقوائم وروابط HTML المهيكلة فوراً إلى تنسيقات Markdown القياسية.'
+  },
+  'Morse Code Translator': { en: 'Morse Code Translator', ar: 'مترجم شفرة مورس' },
+  'Convert plain Latin letters into DOT-DASH international telegraphy code or decode signals.': {
+    en: 'Convert plain Latin letters into DOT-DASH international telegraphy code or decode signals.',
+    ar: 'تحويل الحروف اللاتينية العادية إلى شفرة مورس الدولية المكونة من نقاط وشرطات أو فك تشفير الإشارات.'
+  },
+  'CSS Clip-Path Generator': { en: 'CSS Clip-Path Generator', ar: 'مولد مسارات القص CSS' },
+  'Select preset geometric clip masks and slide dimensions to output copyable CSS rules.': {
+    en: 'Select preset geometric clip masks and slide dimensions to output copyable CSS rules.',
+    ar: 'اختر أقنعة قص هندسية مسبقة التكوين واضغط الأبعاد للحصول على قواعد CSS جاهزة للنسخ.'
+  },
+  'Cron Expression Generator': { en: 'Cron Expression Generator', ar: 'مولد تعبيرات كرون' },
+  'Interact with interval selectors to formulate valid Crontab schedules.': {
+    en: 'Interact with interval selectors to formulate valid Crontab schedules.',
+    ar: 'التفاعل مع محددات الفواصل الزمنية لصياغة جداول Crontab صالحة.'
+  },
+  'Image Color Palette Extractor': { en: 'Image Color Palette Extractor', ar: 'مستخرج لوحة ألوان الصور' },
+  'Upload any design file or graphic to inspect and extract a beautifully coordinated HEX palette.': {
+    en: 'Upload any design file or graphic to inspect and extract a beautifully coordinated HEX palette.',
+    ar: 'ارفع أي ملف تصميم أو رسم لفحص واستخراج لوحة ألوان HEX منسقة بشكل جميل.'
+  },
+  'Simulated Network Checker': { en: 'Simulated Network Checker', ar: 'فاحص الشبكة المحاكي' },
+  'Test common infrastructure configurations and evaluate server accessibility simulations.': {
+    en: 'Test common infrastructure configurations and evaluate server accessibility simulations.',
+    ar: 'اختبر تكوينات البنية التحتية الشائعة وقيم محاكاة الوصول إلى الخوادم.'
+  },
+  'List Shuffler & Randomizer': { en: 'List Shuffler & Randomizer', ar: 'خالط القوائم والعشوائيات' },
+  'Shuffle lines of logs, values, or strings completely offline in the browser.': {
+    en: 'Shuffle lines of logs, values, or strings completely offline in the browser.',
+    ar: 'خلط سطور السجلات أو القيم أو النصوص بالكامل وبشكل مستقل عن الإنترنت في متصفحك.'
+  },
+  'Numeric Base Converter': { en: 'Numeric Base Converter', ar: 'محول الأنظمة العددية' },
+  'Instantly convert integers between binary base-2, octal, hex, and decimal representations.': {
+    en: 'Instantly convert integers between binary base-2, octal, hex, and decimal representations.',
+    ar: 'تحويل الأعداد الصحيحة فوراً بين أنظمة الثنائي، والثماني، والسداسي عشر، والعشري.'
+  },
+  'Interactive Regex Sandbox': { en: 'Interactive Regex Sandbox', ar: 'صندوق رمل Regex التفاعلي' },
+  'Test and evaluate regular expression captures and preview highlighted matches.': {
+    en: 'Test and evaluate regular expression captures and preview highlighted matches.',
+    ar: 'اختبر وقيم لقطات التعبيرات النمطية وعاين التطابقات المميزة بلون مختلف.'
+  },
+  'CSS Transform Canvas': { en: 'CSS Transform Canvas', ar: 'لوحة تحويلات CSS' },
+  'Visually adjust rotates, scales, skews to output pristine CSS transform rules.': {
+    en: 'Visually adjust rotates, scales, skews to output pristine CSS transform rules.',
+    ar: 'اضبط بصرياً التدوير والمقاس والانحراف للحصول على قواعد تحويل CSS ممتازة.'
+  },
+  'SVG to JSX Component': { en: 'SVG to JSX Component', ar: 'محول SVG إلى مكون JSX' },
+  'Convert SVG tags and parameters into valid React component markup declarations.': {
+    en: 'Convert SVG tags and parameters into valid React component markup declarations.',
+    ar: 'تحويل وسوم ومعاملات SVG إلى إعلانات هيكلية صالحة لمكونات React.'
+  },
+  'JSON Schema Generator': { en: 'JSON Schema Generator', ar: 'مولد مخططات JSON' },
+  'Turn raw JSON data arrays into strict standard Drafts-07 validation schemas.': {
+    en: 'Turn raw JSON data arrays into strict standard Drafts-07 validation schemas.',
+    ar: 'تحويل مصفوفات بيانات JSON الخام إلى مخططات تحقق قياسية صارمة من إصدار Drafts-07.'
+  },
+  'JavaScript Obfuscator': { en: 'JavaScript Obfuscator', ar: 'معتم كود JavaScript' },
+  'Lightly obfuscate code blocks by converting text strings to char code hex arrays.': {
+    en: 'Lightly obfuscate code blocks by converting text strings to char code hex arrays.',
+    ar: 'تعتيم كتل الأكواد البرمجية بشكل خفيف عن طريق تحويل سلاسل النصوص إلى مصفوفات رمز سداسي عشر.'
+  },
+  'SQL Statement Minifier': { en: 'SQL Statement Minifier', ar: 'مختصر تعليمات SQL' },
+  'Strip SQL annotations, inline double-dashes, block comments, and carriage spaces.': {
+    en: 'Strip SQL annotations, inline double-dashes, block comments, and carriage spaces.',
+    ar: 'إزالة تعليقات التوضيحية لـ SQL، والشرطات المزدوجة المضمنة، والتعليقات الكتلية، ومساحات السطور.'
+  },
+  'Interactive Git helper': { en: 'Interactive Git helper', ar: 'مساعد Git التفاعلي' },
+  'Configure standard Git operations and obtain copyable console commands.': {
+    en: 'Configure standard Git operations and obtain copyable console commands.',
+    ar: 'تكوين عمليات Git القياسية والحصول على أوامر سطر الأوامر القابلة للنسخ.'
+  },
+  'CSS Flexbox Playground': { en: 'CSS Flexbox Playground', ar: 'منطقة ألعاب CSS Flexbox' },
+  'Test alignment settings to understand spatial coordinate grids in CSS.': {
+    en: 'Test alignment settings to understand spatial coordinate grids in CSS.',
+    ar: 'اختبر إعدادات المحاذاة لفهم شبكات الإحداثيات المكانية في لغة CSS.'
+  },
+  'Multi-Criteria Text Sorter': { en: 'Multi-Criteria Text Sorter', ar: 'فرز النصوص متعدد المعايير' },
+  'Arrange lists by line length, reverse ordering, or alphabetical indicators.': {
+    en: 'Arrange lists by line length, reverse ordering, or alphabetical indicators.',
+    ar: 'ترتيب القوائم حسب طول السطر، أو الترتيب العكسي، أو المؤشرات الأبجدية.'
+  },
+  'cURL to fetch() Converter': { en: 'cURL to fetch() Converter', ar: 'محول cURL إلى fetch' },
+  'Easily translate terminal cURL sequences into clean client-side async fetch() codes.': {
+    en: 'Easily translate terminal cURL sequences into clean client-side async fetch() codes.',
+    ar: 'ترجمة تسلسلات cURL في سطر الأوامر بسهولة إلى كود fetch() غير متزامن نظيف في جانب العميل.'
+  },
 
   // --- New Developer Tools Metadata & UI Translations ---
   'JSON Formatter': { en: 'JSON Formatter', ar: 'منسق JSON' },
@@ -710,6 +865,60 @@ export const translations: Record<string, Record<Language, string>> = {
   'ASCII Codes': { en: 'ASCII Codes', ar: 'رموز أسكي (ASCII Codes)' },
   'Binary Code Representation': { en: 'Binary Code Representation', ar: 'التمثيل بالرمز الثنائي' },
   'Hexadecimal Representation': { en: 'Hexadecimal Representation', ar: 'التمثيل بالنظام السداسي عشر' },
+  'Command Palette': { en: 'Command Palette', ar: 'لوحة التحكم والأوامر السريعة' },
+  'Type to search tools and pages...': { en: 'Type to search tools and pages...', ar: 'اكتب للبحث في الأدوات والصفحات...' },
+  'Press ESC to exit': { en: 'Press ESC to exit', ar: 'اضغط ESC للخروج' },
+  'No commands matched': { en: 'No commands matched', ar: 'لم يتم العثور على أوامر مطابقة' },
+  'Search... (Ctrl+K)': { en: 'Search... (Ctrl+K)', ar: 'بحث... (Ctrl+K)' },
+  'System Pages': { en: 'System Pages', ar: 'صفحات النظام' },
+  'Recent & Popular': { en: 'Recent & Popular', ar: 'الأدوات الشائعة والحديثة' },
+  // Categories & Tools additions
+  'Network & Web Tools': { en: 'Network & Web Tools', ar: 'أدوات الشبكات والويب' },
+  'CIDR Subnet Calculator': { en: 'CIDR Subnet Calculator', ar: 'حاسبة الشبكات الفرعية (CIDR)' },
+  'Docker Run to Compose Converter': { en: 'Docker Run to Compose Converter', ar: 'محول أوامر Docker إلى Compose' },
+  'SQL Mock Data Generator': { en: 'SQL Mock Data Generator', ar: 'مولد بيانات SQL التجريبية' },
+  'Visual Text & JSON Diff': { en: 'Visual Text & JSON Diff', ar: 'مقارنة النصوص وملفات JSON مرئياً' },
+  'Database & Data Modeling': { en: 'Database & Data Modeling', ar: 'قواعد البيانات ونمذجة البيانات' },
+  'CIDR Subnet Calculator description': {
+    en: 'Locally calculate subnet masks, usable host IP ranges, broadcast addresses, and subnet sizing parameters completely offline.',
+    ar: 'احسب أقنعة الشبكات الفرعية، ونطاقات عناوين IP للمضيفين الصالحين للاستخدام، وعناوين البث، ومعلمات الحجم دون اتصال بالإنترنت.'
+  },
+  'Docker Run to Compose description': {
+    en: 'Deconstruct any standard shell docker run CLI command and convert it into a perfectly formatted docker-compose.yml file.',
+    ar: 'قم بتفكيك أي أمر تشغيل docker run قياسي وتحويله إلى ملف docker-compose.yml منسق تماماً.'
+  },
+  'SQL Mock Data Generator description': {
+    en: 'Design custom database table columns offline and instantly compile bulk SQL INSERT statements or matching CSV schemas for rapid seeding.',
+    ar: 'صمم أعمدة مخصصة لجداول قواعد البيانات دون اتصال بالإنترنت وقم بتوليد تعليمات INSERT SQL مجمعة للتغذية السريعة.'
+  },
+  'Visual Text & JSON Diff description': {
+    en: 'Side-by-side local visual text compare. Inspect word-by-word differences, additions, and deletions instantly on a beautiful, syntax-aware split screen.',
+    ar: 'مقارنة نصوص محلية جنباً إلى جنب. افحص الفروق والزيادات والحذوفات في ثوانٍ معدودة عبر شاشة منقسمة مميزة.'
+  },
+  'Video Production & Editing': {
+    en: 'Video Production & Editing',
+    ar: 'إنتاج وتحرير الفيديو'
+  },
+  'Browser-based timeline editing, filters, audio tools, text overlays, subtitles, and social media export.': {
+    en: 'Browser-based timeline editing, filters, audio tools, text overlays, subtitles, and social media export.',
+    ar: 'تعديل الفيديو في المتصفح عبر الخط الزمني، الفلاتر، الصوت، النصوص، الترجمات، ومقاسات التواصل الاجتماعي.'
+  },
+  'Video Production & Editing Studio': {
+    en: 'Video Production & Editing Studio',
+    ar: 'استوديو إنتاج وتحرير الفيديو المتكامل'
+  },
+  'Complete browser-based timeline video editor, visual effects, chroma key, audio tools, subtitles, and social media presets.': {
+    en: 'Complete browser-based timeline video editor, visual effects, chroma key, audio tools, subtitles, and social media presets.',
+    ar: 'محرر فيديو متكامل في المتصفح بالخط الزمني، التأثيرات البصرية، كروما الخضراء، أدوات الصوت، الترجمات، وإعدادات شبكات التواصل الاجتماعي.'
+  },
+  'Image & Video Quality Enhancer': {
+    en: 'Image & Video Quality Enhancer',
+    ar: 'محسن جودة الصور والفيديو المتكامل'
+  },
+  'Enhance and upscale image and video resolutions, sharpen details, reduce noise, and optimize colors locally with real-time before/after comparison.': {
+    en: 'Enhance and upscale image and video resolutions, sharpen details, reduce noise, and optimize colors locally with real-time before/after comparison.',
+    ar: 'تحسين وترقية دقة الصور والفيديو، وشحذ التفاصيل، وتقليل التشويش، وتحسين الألوان محلياً مع مقارنة حية بين القبل والبعد.'
+  }
 };
 
 // Scalable, central t() translation executor with safety fallbacks

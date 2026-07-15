@@ -5,7 +5,8 @@ import {
   Compass, SquarePlus, Sparkles, Feather, Minimize, Move, FileSymlink, Crown, SlidersHorizontal, Crop,
   CheckSquare, CaseSensitive, AlignLeft, Columns, FileSearch, Edit3, FileUp, Grid, Eye, Blend, Droplet,
   Sun, Clock, FileCode, Code2, Lock, QrCode, Barcode, Hash, UserCheck, ShieldAlert, KeyRound, LockKeyhole,
-  Tags, Bot, Network, Percent, CalendarDays, Activity, CalendarClock, Hourglass, Star, Heart, MessageSquare, Info
+  Tags, Bot, Network, Percent, CalendarDays, Activity, CalendarClock, Hourglass, Star, Heart, MessageSquare, Info,
+  Video, Film
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<any>> = {
@@ -14,7 +15,8 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Compass, SquarePlus, Sparkles, Feather, Minimize, Move, FileSymlink, Crown, SlidersHorizontal, Crop,
   CheckSquare, CaseSensitive, AlignLeft, Columns, FileSearch, Edit3, FileUp, Grid, Eye, Blend, Droplet,
   Sun, Clock, FileCode, Code2, Lock, QrCode, Barcode, Hash, UserCheck, ShieldAlert, KeyRound, LockKeyhole,
-  Tags, Bot, Network, Percent, CalendarDays, Activity, CalendarClock, Hourglass, Star, Heart, MessageSquare, Info
+  Tags, Bot, Network, Percent, CalendarDays, Activity, CalendarClock, Hourglass, Star, Heart, MessageSquare, Info,
+  Video, Film
 };
 
 interface LucideIconProps {
