@@ -1,0 +1,7 @@
+# Robots.txt for DevBox Offline Productivity Suite
+User-agent: *
+Allow: /
+
+# Host & Sitemap reference
+Host: https://ais-pre-ayqhs7xkfl2wv3cka6eeqq-632251661041.europe-west2.run.app
+Sitemap: https://ais-pre-ayqhs7xkfl2wv3cka6eeqq-632251661041.europe-west2.run.app/sitemap.xml
